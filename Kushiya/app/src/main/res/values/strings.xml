@@ -2,5 +2,7 @@
     <string name="app_name">My Application</string>
     <string name="startBtn">Start Game</string>
     <string name="helpBtn">How to play?</string>
+    <string name="answer">Answer</string>
+    <string name="question">Question</string>
 
 </resources>
