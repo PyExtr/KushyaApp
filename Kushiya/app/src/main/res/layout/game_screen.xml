@@ -7,21 +7,24 @@
     android:background="@drawable/gamescreenback">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewQuestion"
         android:layout_width="353dp"
         android:layout_height="230dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="88dp"
+        android:background="@drawable/textbox"
         android:padding="18dp"
         android:text="@string/question"
-        android:background="@drawable/textbox"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.517"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTextMultiLine"
-        android:layout_width="282dp"
-        android:layout_height="126dp"
+        android:id="@+id/userAnswer"
+        android:layout_width="279dp"
+        android:layout_height="97dp"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="68dp"
         android:background="@drawable/textbox"
         android:ems="10"
@@ -31,6 +34,83 @@
         android:text="@string/answer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.224"
+        app:layout_constraintHorizontal_bias="0.112"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/submitBtn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="92dp"
+        android:background="@drawable/iconbuttonsubmmit"
+        android:src="@drawable/iconbuttonsubmmit"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.897"
+        app:layout_constraintStart_toEndOf="@+id/userAnswer" />
+
+    <ImageView
+        android:id="@+id/scoreIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/scoreicon" />
+
+    <TextView
+        android:id="@+id/scoreText"
+        android:layout_width="65dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="right|center_vertical"
+        android:text="0"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
+        app:layout_constraintEnd_toStartOf="@+id/scoreIcon"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/homeBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/homebutton"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:text="Button"
+        app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.229" />
+
+    <ImageView
+        android:id="@+id/questionNumberImage"
+        android:layout_width="72dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/questionnumberimage" />
+
+    <TextView
+        android:id="@+id/currentQuestionNumber"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"
+        android:text="1"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
+        app:layout_constraintEnd_toEndOf="@+id/questionNumberImage"
+        app:layout_constraintStart_toStartOf="@+id/questionNumberImage" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
