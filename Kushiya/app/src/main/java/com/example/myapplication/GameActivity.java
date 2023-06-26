@@ -264,8 +264,7 @@ public class GameActivity extends AppCompatActivity {
 
 
     private void goHome() { // Go home screen
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        finish();
     }
 
 
