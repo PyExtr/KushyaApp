@@ -2,7 +2,10 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.*;
+
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +19,13 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -225,8 +234,9 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-    private void showResultDialog(String userAnswerStr, String aiAnswerStr, boolean isCorrect) {
+    private void showResultDialog(String userAnswerStr, String aiAnswerStr, boolean isCorrect) { // Show result dialog
         String previousQuestion = "N/A";  // Initialize previous question
+        // If there are previous questions and the question count is less than the number of previous questions, get previous question
         if (!previousQuestions.isEmpty() && questionCount - 1 < previousQuestions.size()) {
             previousQuestion = previousQuestions.get(questionCount - 1);
         }
@@ -235,20 +245,25 @@ public class GameActivity extends AppCompatActivity {
                 "\nAI's " + aiAnswerStr +
                 "\nYour score: " + score;
         historyList.add(historyItem); // add to history list
-        AlertDialog dialog = new AlertDialog.Builder(this)
+
+        // Write history to file
+        writeToFile(historyItem, this);
+
+        AlertDialog dialog = new AlertDialog.Builder(this) // Create alert dialog
                 .setTitle(isCorrect ? "Correct!" : "Incorrect")
                 .setMessage("Question: " + previousQuestion +
                         "\nYour answer: " + userAnswerStr +
                         "\nAI's " + aiAnswerStr +
-                        "\nTotal score: " + (int) (isCorrect ? score - 1 : score) + (String) (isCorrect ? " + 1" : " + 0"))
+                        "\nTotal score: " + (int) (isCorrect ? score - 1 : score) + (String) (isCorrect ? " + 1" : ""))
                 .setPositiveButton("OK", null)
                 .create();
-        dialog.show();
+        dialog.show(); // Show alert dialog
     }
 
 
 
-    private void goHome() {
+
+    private void goHome() { // Go home screen
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -275,22 +290,68 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) { // Create menu
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.game_options_menu, menu);
+        getMenuInflater().inflate(R.menu.game_options_menu, menu); // Inflate menu
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_view_history) {
-            HistoryDialogFragment historyDialog = new HistoryDialogFragment();
-            historyDialog.show(getSupportFragmentManager(), "historyDialog");
+    public boolean onOptionsItemSelected(MenuItem item) { // Menu options
+        if (item.getItemId() == R.id.menu_restart_game) { // Restart game
+            restartGame();
+            return true;
+        } else if (item.getItemId() == R.id.menu_view_history) { // View history
+            HistoryDialogFragment historyDialog = new HistoryDialogFragment(); // Create history dialog
+            historyDialog.show(getSupportFragmentManager(), "historyDialog"); // Show history dialog
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void writeToFile(String data, Context context) {  // write to file
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("game_history.txt", Context.MODE_PRIVATE));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+
+    private String readFromFile(Context context) { // read from file NOT USED FOR NOW
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput("game_history.txt");
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append("\n").append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+
+        return ret;
+    }
+
+
 
 
 
