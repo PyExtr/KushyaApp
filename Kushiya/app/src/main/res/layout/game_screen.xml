@@ -112,5 +112,16 @@
         app:layout_constraintEnd_toEndOf="@+id/questionNumberImage"
         app:layout_constraintStart_toStartOf="@+id/questionNumberImage" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:layout_constraintBottom_toBottomOf="@+id/submitBtn"
+        app:layout_constraintEnd_toEndOf="@+id/submitBtn"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/submitBtn"
+        app:layout_constraintTop_toTopOf="@+id/submitBtn" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

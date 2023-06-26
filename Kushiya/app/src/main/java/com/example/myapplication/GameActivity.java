@@ -3,10 +3,13 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.*;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.content.Intent;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,17 +27,20 @@ public class GameActivity extends AppCompatActivity {
     private TextView textViewQuestion, scoreText, currentQuestionNumber;  // TextViews
     private EditText userAnswer;  // EditText
     private ImageButton submitBtn, homeBtn;  // Buttons
-
     private String fullAnswer = "";
     private int score = 0;
     private int questionCount = 0;
     private String topic;
     private List<String> previousQuestions = new ArrayList<>();
+    private ProgressBar progressBar;
+    public static List<String> historyList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_screen);
+
 
         // Initialize UI elements
         textViewQuestion = findViewById(R.id.textViewQuestion);
@@ -45,6 +51,8 @@ public class GameActivity extends AppCompatActivity {
         scoreText = findViewById(R.id.scoreText);
         homeBtn = findViewById(R.id.homeBtn);
         currentQuestionNumber = findViewById(R.id.currentQuestionNumber);
+        progressBar = findViewById(R.id.progress_bar);
+
 
         // Setup button actions
         submitBtn.setEnabled(true);
@@ -80,12 +88,13 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void generateQuestion(String topic) {  // Generate question
-        textViewQuestion.setText("Loading...");
-        questionCount++;
+        runOnUiThread(() -> {
+            textViewQuestion.setText("Loading...");
+            userAnswer.setText("");
+            progressBar.setVisibility(View.VISIBLE);  // Show progress bar
+        });
 
-        runOnUiThread(() -> currentQuestionNumber.setText(String.valueOf(questionCount)));  // Update question number
-
-        if (questionCount > 20) {  // If 20 questions have been asked, end game
+        if (questionCount >= 20) {  // If 20 questions have been asked, end game
             runOnUiThread(this::endGame);
             return;
         }
@@ -109,33 +118,35 @@ public class GameActivity extends AppCompatActivity {
                 .post(body)
                 .build();
 
-        client.newCall(request).enqueue(new Callback() {  // Send request
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {  // If request fails, print stack trace
+            public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                runOnUiThread(() -> progressBar.setVisibility(View.GONE)); // Hide progress bar
             }
 
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {  // If request succeeds, get response
-                if (!response.isSuccessful()) {  // If response is not successful, throw exception
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
-                } else {  // If response is successful, get JSON data
-                    final String jsonData = response.body().string();  // Get JSON data
-
-                    String question = "";  // Initialize question
-                    try {  // Get question and full answer from JSON data
-                        JSONObject jsonObject = new JSONObject(jsonData);  // Create JSON object
-                        question = jsonObject.getString("question");  // Get question
-                        fullAnswer = jsonObject.getString("full_answer");  // Get full answer
-                        previousQuestions.add(question);  // Add question to previous questions
-                    } catch (JSONException e) {  // Catch JSON exception
+                } else {
+                    final String jsonData = response.body().string();
+                    String question = "";
+                    try {
+                        JSONObject jsonObject = new JSONObject(jsonData);
+                        question = jsonObject.getString("question");
+                        fullAnswer = jsonObject.getString("full_answer");
+                        previousQuestions.add(question);
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-                    final String finalQuestion = question;  // Create final question
-                    runOnUiThread(() -> {  // Update UI
+                    final String finalQuestion = question;
+                    runOnUiThread(() -> {
                         Toast.makeText(GameActivity.this, "Success", Toast.LENGTH_SHORT).show();
                         textViewQuestion.setText(finalQuestion);
+                        questionCount++;
+                        currentQuestionNumber.setText(String.valueOf(questionCount));
+                        progressBar.setVisibility(View.GONE); // Hide progress bar
                     });
                 }
             }
@@ -217,17 +228,24 @@ public class GameActivity extends AppCompatActivity {
     private void showResultDialog(String userAnswerStr, String aiAnswerStr, boolean isCorrect) {
         String previousQuestion = "N/A";  // Initialize previous question
         if (!previousQuestions.isEmpty() && questionCount - 1 < previousQuestions.size()) {
-            previousQuestion = previousQuestions.get(questionCount);
+            previousQuestion = previousQuestions.get(questionCount - 1);
         }
-        new AlertDialog.Builder(this)
+        String historyItem = "Question " + questionCount +": " + previousQuestion +
+                "\nYour answer: " + userAnswerStr +
+                "\nAI's " + aiAnswerStr +
+                "\nYour score: " + score;
+        historyList.add(historyItem); // add to history list
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(isCorrect ? "Correct!" : "Incorrect")
                 .setMessage("Question: " + previousQuestion +
                         "\nYour answer: " + userAnswerStr +
                         "\nAI's " + aiAnswerStr +
-                        "\nYour score: " + score)
+                        "\nTotal score: " + (int) (isCorrect ? score - 1 : score) + (String) (isCorrect ? " + 1" : " + 0"))
                 .setPositiveButton("OK", null)
-                .show();
+                .create();
+        dialog.show();
     }
+
 
 
     private void goHome() {
@@ -255,4 +273,25 @@ public class GameActivity extends AppCompatActivity {
         currentQuestionNumber.setText(String.valueOf(questionCount + 1));
         startGame();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.game_options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_view_history) {
+            HistoryDialogFragment historyDialog = new HistoryDialogFragment();
+            historyDialog.show(getSupportFragmentManager(), "historyDialog");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
 }
