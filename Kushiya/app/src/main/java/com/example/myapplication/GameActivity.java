@@ -311,8 +311,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void writeToFile(String data, Context context) {  // write to file
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("game_history.txt", Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("game_history.txt", Context.MODE_APPEND));
+            outputStreamWriter.write(data + "\n"); // Append a newline character to separate entries
             outputStreamWriter.close();
         }
         catch (IOException e) {
