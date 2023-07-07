@@ -1,9 +1,12 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import okhttp3.*;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -34,22 +37,19 @@ import android.app.AlertDialog;
 public class GameActivity extends AppCompatActivity {
 
     private TextView textViewQuestion, scoreText, currentQuestionNumber;  // TextViews
-    private EditText userAnswer;  // EditText
+    private EditText userAnswer;
     private ImageButton submitBtn, homeBtn;  // Buttons
-    private String fullAnswer = "";
-    private int score = 0;
-    private int questionCount = 0;
-    private String topic;
+    private String fullAnswer = "", topic;
+    private int score = 0, questionCount = 0;
     private List<String> previousQuestions = new ArrayList<>();
     private ProgressBar progressBar;
     public static List<String> historyList = new ArrayList<>();
-
+    private NetworkInfo networkReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_screen);
-
 
         // Initialize UI elements
         textViewQuestion = findViewById(R.id.textViewQuestion);
@@ -62,29 +62,30 @@ public class GameActivity extends AppCompatActivity {
         currentQuestionNumber = findViewById(R.id.currentQuestionNumber);
         progressBar = findViewById(R.id.progress_bar);
 
-
         // Setup button actions
         submitBtn.setEnabled(true);
         submitBtn.setClickable(true);
-
 
         final EditText input = createTopicInput();  // Create topic input
 
         submitBtn.setOnClickListener(view -> submitAnswer());  // Submit button
         homeBtn.setOnClickListener(view -> goHome());  // Home button
 
+        // Game will not work without the internet.
         new AlertDialog.Builder(this)  // Create dialog box for topic input
                 .setTitle("Choose a Topic")
                 .setMessage("Please enter the topic you want to play.")
                 .setView(input)
                 .setPositiveButton("Start", (dialog, which) -> {
                     topic = input.getText().toString();
-                    startGame();
+                    if (networkReceiver.isConnected()) {
+                        startGame();
+                    } else {
+                        Toast.makeText(this, "You should connected to a network to start a game", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .show();
-
     }
-
 
     private EditText createTopicInput() {  // Create topic input
         final EditText input = new EditText(this);
@@ -92,7 +93,7 @@ public class GameActivity extends AppCompatActivity {
         return input;
     }
 
-    private void startGame() {  // Start game
+    protected void startGame() {  // Start game
         generateQuestion(topic);
     }
 
@@ -123,7 +124,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/generate_question")
+                .url("http://192.168.192.151:5000/generate_question")
                 .post(body)
                 .build();
 
@@ -186,7 +187,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/evaluate_answer")
+                .url("http://192.168.192.151:5000/evaluate_answer")
                 .post(body)
                 .build();
 
@@ -240,7 +241,7 @@ public class GameActivity extends AppCompatActivity {
         if (!previousQuestions.isEmpty() && questionCount - 1 < previousQuestions.size()) {
             previousQuestion = previousQuestions.get(questionCount - 1);
         }
-        String historyItem = "Question " + questionCount +": " + previousQuestion +
+        String historyItem = "Question " + questionCount + ": " + previousQuestion +
                 "\nYour answer: " + userAnswerStr +
                 "\nAI's " + aiAnswerStr +
                 "\nYour score: " + score;
@@ -259,8 +260,6 @@ public class GameActivity extends AppCompatActivity {
                 .create();
         dialog.show(); // Show alert dialog
     }
-
-
 
 
     private void goHome() { // Go home screen
@@ -314,8 +313,7 @@ public class GameActivity extends AppCompatActivity {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("game_history.txt", Context.MODE_PRIVATE));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
         }
     }
@@ -327,21 +325,20 @@ public class GameActivity extends AppCompatActivity {
         try {
             InputStream inputStream = context.openFileInput("game_history.txt");
 
-            if ( inputStream != null ) {
+            if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
 
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append("\n").append(receiveString);
                 }
 
                 inputStream.close();
                 ret = stringBuilder.toString();
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: " + e.toString());
         } catch (IOException e) {
             Log.e("login activity", "Can not read file: " + e.toString());
@@ -349,9 +346,6 @@ public class GameActivity extends AppCompatActivity {
 
         return ret;
     }
-
-
-
 
 
 }
