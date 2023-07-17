@@ -44,7 +44,6 @@ public class GameActivity extends AppCompatActivity {
     private List<String> previousQuestions = new ArrayList<>();
     private ProgressBar progressBar;
     public static List<String> historyList = new ArrayList<>();
-    private NetworkReceiver networkReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +119,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.192.151:5000/generate_question")
+                .url("http://192.168.0.101:5000/generate_question")
                 .post(body)
                 .build();
 
@@ -183,7 +182,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.192.151:5000/evaluate_answer")
+                .url("http://192.168.0.101:5000/evaluate_answer")
                 .post(body)
                 .build();
 

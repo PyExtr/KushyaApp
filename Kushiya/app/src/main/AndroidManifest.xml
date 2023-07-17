@@ -37,6 +37,7 @@
         <activity android:name=".GameActivity" />
         <activity android:name=".HistoryActivity" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
 
 
 </manifest>
