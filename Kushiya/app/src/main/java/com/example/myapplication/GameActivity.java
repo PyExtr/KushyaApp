@@ -44,7 +44,7 @@ public class GameActivity extends AppCompatActivity {
     private List<String> previousQuestions = new ArrayList<>();
     private ProgressBar progressBar;
     public static List<String> historyList = new ArrayList<>();
-    private NetworkInfo networkReceiver;
+    private NetworkReceiver networkReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,11 +78,7 @@ public class GameActivity extends AppCompatActivity {
                 .setView(input)
                 .setPositiveButton("Start", (dialog, which) -> {
                     topic = input.getText().toString();
-                    if (networkReceiver.isConnected()) {
-                        startGame();
-                    } else {
-                        Toast.makeText(this, "You should connected to a network to start a game", Toast.LENGTH_SHORT).show();
-                    }
+                    startGame();
                 })
                 .show();
     }

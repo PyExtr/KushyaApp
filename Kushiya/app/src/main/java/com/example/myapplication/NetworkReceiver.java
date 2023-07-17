@@ -24,7 +24,7 @@ public class NetworkReceiver extends BroadcastReceiver {
         if (isConnected) {
             Toast.makeText(context, "Network is ON", Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(context, "Network is OFF", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Game can not start without internet", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -32,10 +32,5 @@ public class NetworkReceiver extends BroadcastReceiver {
         return isConnected;
     }
 }
-
-
-/////kdfmlksnslkadfnawgfrwnal
-
-////fdgbmflkdabak
 
 
