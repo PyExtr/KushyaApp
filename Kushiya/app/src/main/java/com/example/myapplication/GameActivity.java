@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import okhttp3.*;
 
@@ -44,11 +46,16 @@ public class GameActivity extends AppCompatActivity {
     private List<String> previousQuestions = new ArrayList<>();
     private ProgressBar progressBar;
     public static List<String> historyList = new ArrayList<>();
+    private GameViewModel gameViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_screen);
+
+        gameViewModel = new ViewModelProvider((ViewModelStoreOwner) this,
+                (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory
+                .getInstance(getApplication())).get(GameViewModel.class);
 
         // Initialize UI elements
         textViewQuestion = findViewById(R.id.textViewQuestion);
@@ -65,11 +72,11 @@ public class GameActivity extends AppCompatActivity {
         submitBtn.setEnabled(true);
         submitBtn.setClickable(true);
 
-        final EditText input = createTopicInput();  // Create topic input
-
         submitBtn.setOnClickListener(view -> submitAnswer());  // Submit button
         homeBtn.setOnClickListener(view -> goHome());  // Home button
 
+        final EditText input = new EditText(this);  // Create topic input
+        input.setHint("Enter a topic");
         // Game will not work without the internet.
         new AlertDialog.Builder(this)  // Create dialog box for topic input
                 .setTitle("Choose a Topic")
@@ -80,12 +87,6 @@ public class GameActivity extends AppCompatActivity {
                     startGame();
                 })
                 .show();
-    }
-
-    private EditText createTopicInput() {  // Create topic input
-        final EditText input = new EditText(this);
-        input.setHint("Enter a topic");
-        return input;
     }
 
     protected void startGame() {  // Start game
