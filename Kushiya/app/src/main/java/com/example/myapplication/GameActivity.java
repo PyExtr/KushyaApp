@@ -1,15 +1,15 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import okhttp3.*;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,14 +31,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.AlertDialog;
 
 public class GameActivity extends AppCompatActivity {
 
-    private TextView textViewQuestion, scoreText, currentQuestionNumber;  // TextViews
+    private TextView textViewQuestion, scoreText, currentQuestionNumber, timerTextView;  // TextViews
     private EditText userAnswer;
     private ImageButton submitBtn, homeBtn;  // Buttons
     private String fullAnswer = "", topic;
@@ -46,16 +49,20 @@ public class GameActivity extends AppCompatActivity {
     private List<String> previousQuestions = new ArrayList<>();
     private ProgressBar progressBar;
     public static List<String> historyList = new ArrayList<>();
-    private GameViewModel gameViewModel;
+    private long startTime;
+    private boolean timerRunning;
+
+    SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_screen);
 
-        gameViewModel = new ViewModelProvider((ViewModelStoreOwner) this,
-                (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory
-                .getInstance(getApplication())).get(GameViewModel.class);
+        timerTextView = findViewById(R.id.textClock);
+        // Start the timer when the activity is created
+        startTimer();
 
         // Initialize UI elements
         textViewQuestion = findViewById(R.id.textViewQuestion);
@@ -68,25 +75,49 @@ public class GameActivity extends AppCompatActivity {
         currentQuestionNumber = findViewById(R.id.currentQuestionNumber);
         progressBar = findViewById(R.id.progress_bar);
 
+        sharedPreferences = getSharedPreferences("save_topic_game", Context.MODE_PRIVATE);
+
         // Setup button actions
         submitBtn.setEnabled(true);
         submitBtn.setClickable(true);
 
         submitBtn.setOnClickListener(view -> submitAnswer());  // Submit button
         homeBtn.setOnClickListener(view -> goHome());  // Home button
-
         final EditText input = new EditText(this);  // Create topic input
         input.setHint("Enter a topic");
-        // Game will not work without the internet.
+
         new AlertDialog.Builder(this)  // Create dialog box for topic input
-                .setTitle("Choose a Topic")
-                .setMessage("Please enter the topic you want to play.")
-                .setView(input)
-                .setPositiveButton("Start", (dialog, which) -> {
+                .setTitle("Choose a Topic").setMessage("Please enter the topic you want to play.").setView(input).setPositiveButton("Start", (dialog, which) -> {
                     topic = input.getText().toString();
+                    saveTopicSP(topic);
                     startGame();
-                })
-                .show();
+                }).show();
+    }
+
+    public void startTimer() {
+//        startTime = SystemClock.elapsedRealtime();
+//        timerRunning = true;
+       // timerTextView.setText((int) startTime);
+    }
+
+
+    ////SP//////
+    public void saveTopicSP(String topic) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(topic, "");
+        editor.apply();
+    }
+
+    public void clearTopicSP() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    private EditText createTopicInput() {  // Create topic input
+        final EditText input = new EditText(this);
+        input.setHint("Enter a topic");
+        return input;
     }
 
     protected void startGame() {  // Start game
@@ -120,9 +151,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/generate_question")
-                .post(body)
-                .build();
+                .url("http://192.168.202.151:5000/generate_question").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -183,9 +212,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/evaluate_answer")
-                .post(body)
-                .build();
+                .url("http://192.168.202.151:5000/evaluate_answer").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {  // Send request
             @Override
@@ -237,40 +264,25 @@ public class GameActivity extends AppCompatActivity {
         if (!previousQuestions.isEmpty() && questionCount - 1 < previousQuestions.size()) {
             previousQuestion = previousQuestions.get(questionCount - 1);
         }
-        String historyItem = "Question " + questionCount + ": " + previousQuestion +
-                "\nYour answer: " + userAnswerStr +
-                "\nAI's " + aiAnswerStr +
-                "\nYour score: " + score;
+        String historyItem = "Question " + questionCount + ": " + previousQuestion + "\nYour answer: " + userAnswerStr + "\nAI's " + aiAnswerStr + "\nYour score: " + score;
         historyList.add(historyItem); // add to history list
 
         // Write history to file
         writeToFile(historyItem, this);
 
         AlertDialog dialog = new AlertDialog.Builder(this) // Create alert dialog
-                .setTitle(isCorrect ? "Correct!" : "Incorrect")
-                .setMessage("Question: " + previousQuestion +
-                        "\nYour answer: " + userAnswerStr +
-                        "\nAI's " + aiAnswerStr +
-                        "\nTotal score: " + (int) (isCorrect ? score - 1 : score) + (String) (isCorrect ? " + 1" : ""))
-                .setPositiveButton("OK", null)
-                .create();
+                .setTitle(isCorrect ? "Correct!" : "Incorrect").setMessage("Question: " + previousQuestion + "\nYour answer: " + userAnswerStr + "\nAI's " + aiAnswerStr + "\nTotal score: " + (int) (isCorrect ? score - 1 : score) + (String) (isCorrect ? " + 1" : "")).setPositiveButton("OK", null).create();
         dialog.show(); // Show alert dialog
     }
-
 
     private void goHome() { // Go home screen
         finish();
     }
 
-
     private void endGame() {
+        clearTopicSP();
         // Show an alert dialog with the final score and a replay option
-        new AlertDialog.Builder(this)
-                .setTitle("Game Over")
-                .setMessage("Your final score is " + score + ".\nDo you want to play again?")
-                .setPositiveButton("Yes", (dialog, which) -> restartGame())
-                .setNegativeButton("No", (dialog, which) -> goHome())
-                .show();
+        new AlertDialog.Builder(this).setTitle("Game Over").setMessage("Your final score is " + score + ".\nDo you want to play again?").setPositiveButton("Yes", (dialog, which) -> restartGame()).setNegativeButton("No", (dialog, which) -> goHome()).show();
     }
 
     private void restartGame() {
