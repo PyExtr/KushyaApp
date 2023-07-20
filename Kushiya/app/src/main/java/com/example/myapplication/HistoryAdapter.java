@@ -12,9 +12,9 @@ import java.util.List;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
-    private List<String> historyList;
+    private List<HistoryItem> historyList;
 
-    public HistoryAdapter(List<String> historyList) {
+    public HistoryAdapter(List<HistoryItem> historyList) {
         this.historyList = historyList;
     }
 
@@ -27,8 +27,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
-        String historyItem = historyList.get(position);
-        holder.historyItemView.setText(historyItem);
+        HistoryItem historyItem = historyList.get(position);
+        holder.questionView.setText(historyItem.getQuestion());
+        holder.answerView.setText(historyItem.getAnswer());
+        holder.scoreView.setText(String.valueOf(historyItem.getScore()));
     }
 
     @Override
@@ -36,12 +38,17 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         return historyList.size();
     }
 
+    // Your HistoryViewHolder class should have TextViews for question, answer, and score
     public static class HistoryViewHolder extends RecyclerView.ViewHolder {
-        private final TextView historyItemView;
+        private final TextView questionView;
+        private final TextView answerView;
+        private final TextView scoreView;
 
         public HistoryViewHolder(View view) {
             super(view);
-            historyItemView = view.findViewById(R.id.history_text_view);
+            questionView = view.findViewById(R.id.question_text_view);
+            answerView = view.findViewById(R.id.answer_text_view);
+            scoreView = view.findViewById(R.id.score_text_view);
         }
     }
 }
