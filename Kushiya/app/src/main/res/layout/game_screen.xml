@@ -10,22 +10,22 @@
         android:id="@+id/textViewQuestion"
         android:layout_width="353dp"
         android:layout_height="230dp"
-        android:layout_marginTop="88dp"
         android:background="@drawable/textbox"
         android:padding="18dp"
         android:text="@string/question"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.517"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.241" />
 
     <EditText
         android:id="@+id/userAnswer"
         android:layout_width="279dp"
         android:layout_height="97dp"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="68dp"
         android:background="@drawable/textbox"
         android:ems="10"
         android:gravity="start|top"
@@ -34,8 +34,10 @@
         android:text="@string/answer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.112"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.12"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.873" />
 
     <ImageButton
         android:id="@+id/submitBtn"
@@ -49,16 +51,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.897"
-        app:layout_constraintStart_toEndOf="@+id/userAnswer" />
+        app:layout_constraintStart_toEndOf="@+id/userAnswer"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <ImageView
         android:id="@+id/scoreIcon"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginEnd="28dp"
         app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.892"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.456"
         app:srcCompat="@drawable/scoreicon" />
 
     <TextView
@@ -71,32 +76,38 @@
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
         app:layout_constraintEnd_toStartOf="@+id/scoreIcon"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.456" />
 
     <ImageButton
         android:id="@+id/homeBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/homebutton"
         android:minWidth="48dp"
         android:minHeight="48dp"
         android:text="Button"
         app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.082"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.229" />
+        app:layout_constraintVertical_bias="0.228"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <ImageView
         android:id="@+id/questionNumberImage"
         android:layout_width="72dp"
         android:layout_height="61dp"
-        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.043"
         app:srcCompat="@drawable/questionnumberimage" />
 
     <TextView
@@ -110,7 +121,9 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/textViewQuestion"
         app:layout_constraintEnd_toEndOf="@+id/questionNumberImage"
-        app:layout_constraintStart_toStartOf="@+id/questionNumberImage" />
+        app:layout_constraintStart_toStartOf="@+id/questionNumberImage"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.742" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -122,6 +135,17 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/submitBtn"
         app:layout_constraintTop_toTopOf="@+id/submitBtn" />
+
+<!--    <Chronometer-->
+<!--        android:id="@+id/timerChro"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.085"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintVertical_bias="0.126" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

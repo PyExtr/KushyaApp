@@ -1,9 +1,6 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import okhttp3.*;
 
@@ -54,7 +51,6 @@ public class GameActivity extends AppCompatActivity {
     public static List<String> historyList = new ArrayList<>();
     private long startTime;
     private boolean timerRunning;
-    private GameViewModel gameViewModel;
 
     SharedPreferences sharedPreferences;
 
@@ -64,46 +60,9 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_screen);
 
-        // timerTextView = findViewById(R.id.textClock);
+        timerTextView = findViewById(R.id.textClock);
         // Start the timer when the activity is created
         startTimer();
-
-        // Initialize the GameViewModel
-        gameViewModel = new ViewModelProvider((ViewModelStoreOwner) this,
-                (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory
-                        .getInstance(getApplication())).get(GameViewModel.class);
-
-
-        gameViewModel.getScore().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer newScore) {
-            }
-        });
-
-        gameViewModel.getCurrentQuestion().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String newQuestion) {
-            }
-        });
-
-        gameViewModel.getFullAnswer().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String newFullAnswer) {
-            }
-        });
-
-        gameViewModel.getQuestionCount().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer newQuestionCount) {
-            }
-        });
-
-        gameViewModel.getPreviousQuestions().observe(this, new Observer<List<String>>() {
-            @Override
-            public void onChanged(List<String> newPreviousQuestions) {
-            }
-        });
-
 
         // Initialize UI elements
         textViewQuestion = findViewById(R.id.textViewQuestion);
@@ -192,9 +151,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/generate_question")
-                .post(body)
-                .build();
+                .url("http://192.168.202.151:5000/generate_question").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -255,9 +212,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/evaluate_answer")
-                .post(body)
-                .build();
+                .url("http://192.168.202.151:5000/evaluate_answer").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {  // Send request
             @Override
