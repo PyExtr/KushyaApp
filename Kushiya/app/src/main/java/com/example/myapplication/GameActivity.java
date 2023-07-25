@@ -74,36 +74,27 @@ public class GameActivity extends AppCompatActivity {
                         .getInstance(getApplication())).get(GameViewModel.class);
 
 
-        gameViewModel.getScore().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer newScore) {
-            }
-        });
-
         gameViewModel.getCurrentQuestion().observe(this, new Observer<String>() {
             @Override
-            public void onChanged(String newQuestion) {
-            }
-        });
-
-        gameViewModel.getFullAnswer().observe(this, new Observer<String>() {
-            @Override
             public void onChanged(String newFullAnswer) {
+                // create a toast when new question is generated
+                Toast.makeText(GameActivity.this, "New question generated", Toast.LENGTH_SHORT).show();
             }
         });
 
-        gameViewModel.getQuestionCount().observe(this, new Observer<Integer>() {
+        gameViewModel.getCurrentAnswer().observe(this, new Observer<String>() {
             @Override
-            public void onChanged(Integer newQuestionCount) {
+            public void onChanged(String answer) {
+                // no function
             }
         });
 
-        gameViewModel.getPreviousQuestions().observe(this, new Observer<List<String>>() {
+        gameViewModel.getCurrentScore().observe(this, new Observer<Integer>() {
             @Override
-            public void onChanged(List<String> newPreviousQuestions) {
+            public void onChanged(Integer score) {
+                // no function
             }
         });
-
 
         // Initialize UI elements
         textViewQuestion = findViewById(R.id.textViewQuestion);
@@ -166,7 +157,9 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void generateQuestion(String topic) {  // Generate question
-        runOnUiThread(() -> {
+        String newQuestion = "Your generated question"; // Placeholder question
+
+        runOnUiThread(() -> {  // Run on UI thread, or else app will crash
             textViewQuestion.setText("Loading...");
             userAnswer.setText("");
             progressBar.setVisibility(View.VISIBLE);  // Show progress bar
@@ -220,7 +213,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                     final String finalQuestion = question;
                     runOnUiThread(() -> {
-                        Toast.makeText(GameActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                        gameViewModel.setCurrentQuestion(finalQuestion); // Set current question for the observer
                         textViewQuestion.setText(finalQuestion);
                         questionCount++;
                         currentQuestionNumber.setText(String.valueOf(questionCount));
@@ -233,6 +226,11 @@ public class GameActivity extends AppCompatActivity {
 
 
     private void submitAnswer() {  // Submit answer
+        if (userAnswer.getText().toString().isEmpty()) {  // If user answer is empty, show toast
+            Toast.makeText(this, "Please enter an answer", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        gameViewModel.setCurrentAnswer(userAnswer.getText().toString());  // Set current answer for the observer
         String userAnswerStr = userAnswer.getText().toString();  // Get user answer
         String previousQuestion = "";  // Initialize previous question
         // If there are previous questions and the question count is less than the number of previous questions, get previous question
@@ -283,6 +281,7 @@ public class GameActivity extends AppCompatActivity {
                     if (scoreFromServer > 0) {  // If score is greater than 0, increment score and update UI
                         score++;
                         runOnUiThread(() -> {  // Update UI
+                            gameViewModel.setCurrentScore(score);  // Set score for the observer
                             scoreText.setText(String.valueOf(score));
                             currentQuestionNumber.setText(String.valueOf(score + 1));
                             Toast.makeText(GameActivity.this, "Correct Answer!", Toast.LENGTH_SHORT).show();

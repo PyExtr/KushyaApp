@@ -11,61 +11,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameViewModel extends AndroidViewModel {
-
-    private MutableLiveData<Integer> score;
     private MutableLiveData<String> currentQuestion;
-    private MutableLiveData<String> fullAnswer;
-    private MutableLiveData<Integer> questionCount;
-    private MutableLiveData<List<String>> previousQuestions;
+    private MutableLiveData<String> currentAnswer;
+    private MutableLiveData<Integer> currentScore;
 
     public GameViewModel(@NonNull Application application) {
         super(application);
-        score = new MutableLiveData<>();
         currentQuestion = new MutableLiveData<>();
-        fullAnswer = new MutableLiveData<>();
-        questionCount = new MutableLiveData<>();
-        previousQuestions = new MutableLiveData<>();
-    }
-
-    public LiveData<Integer> getScore() {
-        return score;
+        currentAnswer = new MutableLiveData<>();
+        currentScore = new MutableLiveData<>();
     }
 
     public LiveData<String> getCurrentQuestion() {
         return currentQuestion;
     }
 
-    public LiveData<String> getFullAnswer() {
-        return fullAnswer;
+    public LiveData<String> getCurrentAnswer() {
+        return currentAnswer;
     }
 
-    public LiveData<Integer> getQuestionCount() {
-        return questionCount;
-    }
-
-    public LiveData<List<String>> getPreviousQuestions() {
-        return previousQuestions;
-    }
-
-    public void setScore(int newScore) {
-        score.setValue(newScore);
+    public LiveData<Integer> getCurrentScore() {
+        return currentScore;
     }
 
     public void setCurrentQuestion(String question) {
-        currentQuestion.setValue(question);
+        currentQuestion.postValue(question);
     }
 
-    public void setFullAnswer(String answer) {
-        fullAnswer.setValue(answer);
+    public void setCurrentAnswer(String answer) {
+        currentAnswer.postValue(answer);
     }
 
-    public void setQuestionCount(int count) {
-        questionCount.setValue(count);
-    }
-
-    public void setPreviousQuestions(List<String> questions) {
-        previousQuestions.setValue(questions);
+    public void setCurrentScore(Integer score) {
+        currentScore.postValue(score);
     }
 }
+
 
 
