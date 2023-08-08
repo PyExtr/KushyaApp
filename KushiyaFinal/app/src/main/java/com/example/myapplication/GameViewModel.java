@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameViewModel extends AndroidViewModel {
+
+    // עוקב אחר מידע שמשתנה בזמן ריצה
     private MutableLiveData<String> currentQuestion;
     private MutableLiveData<String> currentAnswer;
     private MutableLiveData<Integer> currentScore;

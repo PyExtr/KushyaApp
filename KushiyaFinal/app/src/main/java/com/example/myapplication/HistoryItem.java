@@ -5,6 +5,7 @@ public class HistoryItem {
     private String answer;
     private int score;
 
+
     public HistoryItem(String question, String answer, int score) {
         this.question = question;
         this.answer = answer;

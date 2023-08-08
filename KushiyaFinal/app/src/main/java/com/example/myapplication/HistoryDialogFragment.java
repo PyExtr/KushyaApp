@@ -10,7 +10,7 @@ import androidx.fragment.app.DialogFragment;
 import com.example.myapplication.R;
 
 public class HistoryDialogFragment extends DialogFragment {
-
+    // מתארת את החלון (דיאלוג) של ההיסטוריה
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -24,6 +24,8 @@ public class HistoryDialogFragment extends DialogFragment {
         TextView textView = view.findViewById(R.id.history_text_view);
 
         StringBuilder stringBuilder = new StringBuilder();
+
+        // fill the historyList data
         for (String historyItem : GameActivity.historyList) {
             stringBuilder.append(historyItem);
             stringBuilder.append("\n\n");

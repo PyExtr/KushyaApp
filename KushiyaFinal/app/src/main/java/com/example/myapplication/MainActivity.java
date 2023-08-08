@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         // This function will call each time when MainActivity will create
         registerNetworkReceiver();
     }
+
+    // 8 Broadcast receiver for internet connectivity.
     private void registerNetworkReceiver() {
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(br, filter, Manifest.permission.ACCESS_NETWORK_STATE,null);

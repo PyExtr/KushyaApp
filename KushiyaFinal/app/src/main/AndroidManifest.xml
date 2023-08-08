@@ -15,8 +15,6 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
 
-        <service android:name=".TimerService" ></service>
-
         <receiver
             android:name=".NetworkReceiver"
             android:enabled="true"
@@ -38,9 +36,15 @@
         </activity>
         <activity android:name=".GameActivity" />
         <activity android:name=".HistoryAdapter" />
-    </application>
 
+        <service
+            android:name=".TimerService"
+            android:enabled="true"
+            android:exported="true"/>
+    </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
 
 </manifest>

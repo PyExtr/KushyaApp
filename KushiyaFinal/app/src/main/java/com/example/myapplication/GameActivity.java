@@ -1,16 +1,15 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import okhttp3.*;
-
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.NetworkInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -18,33 +17,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.content.Intent;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-
 import android.app.AlertDialog;
 
 public class GameActivity extends AppCompatActivity {
 
-    private TextView textViewQuestion, scoreText, currentQuestionNumber, timerTextView;  // TextViews
+    private TextView textViewQuestion, scoreText, currentQuestionNumber;  // TextViews
     private EditText userAnswer;
     private ImageButton submitBtn, homeBtn;  // Buttons
     private String fullAnswer = "", topic;
@@ -52,11 +46,10 @@ public class GameActivity extends AppCompatActivity {
     private List<String> previousQuestions = new ArrayList<>();
     private ProgressBar progressBar;
     public static List<String> historyList = new ArrayList<>();
-    private long startTime;
-    private boolean timerRunning;
+    private boolean timerRunning = false;
+    private Chronometer chronometer;
+    private SharedPreferences sharedPreferences;
     private GameViewModel gameViewModel;
-
-    SharedPreferences sharedPreferences;
 
 
     @Override
@@ -64,7 +57,8 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_screen);
 
-        // timerTextView = findViewById(R.id.textClock);
+        chronometer = findViewById(R.id.timerChro);
+
         // Start the timer when the activity is created
         startTimer();
 
@@ -72,7 +66,6 @@ public class GameActivity extends AppCompatActivity {
         gameViewModel = new ViewModelProvider((ViewModelStoreOwner) this,
                 (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory
                         .getInstance(getApplication())).get(GameViewModel.class);
-
 
         gameViewModel.getCurrentQuestion().observe(this, new Observer<String>() {
             @Override
@@ -85,7 +78,7 @@ public class GameActivity extends AppCompatActivity {
         gameViewModel.getCurrentAnswer().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String answer) {
-                // no function
+                userAnswer.setTextColor(Color.GREEN);
             }
         });
 
@@ -118,6 +111,7 @@ public class GameActivity extends AppCompatActivity {
         final EditText input = new EditText(this);  // Create topic input
         input.setHint("Enter a topic");
 
+        // 3,7 the topics will be saved on SP
         new AlertDialog.Builder(this)  // Create dialog box for topic input
                 .setTitle("Choose a Topic").setMessage("Please enter the topic you want to play.").setView(input).setPositiveButton("Start", (dialog, which) -> {
                     topic = input.getText().toString();
@@ -126,14 +120,47 @@ public class GameActivity extends AppCompatActivity {
                 }).show();
     }
 
-    public void startTimer() {
-//        startTime = SystemClock.elapsedRealtime();
-//        timerRunning = true;
-       // timerTextView.setText((int) startTime);
+    // 9 Foreground service or work manager android.
+    private void startTimerService() {
+        Intent serviceIntent = new Intent(this, TimerService.class);
+        startForegroundService(serviceIntent);
+    }
+    // 9 Foreground service or work manager android.
+    private void stopTimerService() {
+        Intent serviceIntent = new Intent(this, TimerService.class);
+        stopService(serviceIntent);
     }
 
+    // 9 Foreground service or work manager android.
+    public void startTimer() {
+        chronometer.setBase(SystemClock.elapsedRealtime());
+        chronometer.start();
+        timerRunning = true;
+    }
 
-    ////SP//////
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Start timer when game activity is in foreground.
+        startTimerService();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Do not stop timer when game activity is not in the foreground.
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Stop timer when game activity is destroyed.
+        stopTimerService();
+        clearTopicSP();
+    }
+
+    ///// SP //////
+    // 3,7 the topics will be saved on SP
     public void saveTopicSP(String topic) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(topic, "");
@@ -159,9 +186,10 @@ public class GameActivity extends AppCompatActivity {
     private void generateQuestion(String topic) {  // Generate question
         String newQuestion = "Your generated question"; // Placeholder question
 
-        runOnUiThread(() -> {  // Run on UI thread, or else app will crash
+        runOnUiThread(() -> {
             textViewQuestion.setText("Loading...");
             userAnswer.setText("");
+            userAnswer.setTextColor(Color.BLACK);
             progressBar.setVisibility(View.VISIBLE);  // Show progress bar
         });
 
@@ -172,7 +200,7 @@ public class GameActivity extends AppCompatActivity {
 
         OkHttpClient client = new OkHttpClient();  // Create HTTP client
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");  // Create JSON media type
-
+        // הג'ייסון הוא התקשורת שלנו עם הOPENAI API
         JSONArray previousQuestionsJson = new JSONArray(previousQuestions);  // Create JSON array of previous questions
         JSONObject jsonObject = new JSONObject();  // Create JSON object
         try {  // Add data to JSON object
@@ -185,9 +213,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/generate_question")
-                .post(body)
-                .build();
+                .url("http://192.168.221.151:5000/generate_question").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -196,6 +222,7 @@ public class GameActivity extends AppCompatActivity {
                 runOnUiThread(() -> progressBar.setVisibility(View.GONE)); // Hide progress bar
             }
 
+            // if we get response from api
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 if (!response.isSuccessful()) {
@@ -253,9 +280,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.0.101:5000/evaluate_answer")
-                .post(body)
-                .build();
+                .url("http://192.168.221.151:5000/evaluate_answer").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {  // Send request
             @Override
@@ -293,7 +318,6 @@ public class GameActivity extends AppCompatActivity {
                             showResultDialog(userAnswerStr, fullAnswer, false);
                         });
                     }
-
                     // Generate the next question
                     startGame();
                 }
@@ -324,19 +348,20 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void endGame() {
-        clearTopicSP();
+        stopTimerService();
         // Show an alert dialog with the final score and a replay option
-        new AlertDialog.Builder(this).setTitle("Game Over").setMessage("Your final score is " + score + ".\nDo you want to play again?").setPositiveButton("Yes", (dialog, which) -> restartGame()).setNegativeButton("No", (dialog, which) -> goHome()).show();
+        new AlertDialog.Builder(this)
+                .setTitle("Game Over")
+                .setMessage("Your final score is " + score + ".\nDo you want to play again?")
+                .setPositiveButton("Yes", (dialog, which) -> restartGame()).setNegativeButton("No", (dialog, which) -> goHome())
+                .show();
     }
 
     private void restartGame() {
         // Reset the score and question count and start a new game
-        score = 0;
-        questionCount = 0;
-        previousQuestions.clear();  // clear previous questions
-        scoreText.setText(String.valueOf(score));
-        currentQuestionNumber.setText(String.valueOf(questionCount + 1));
-        startGame();
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
     }
 
     @Override
@@ -369,35 +394,4 @@ public class GameActivity extends AppCompatActivity {
             Log.e("Exception", "File write failed: " + e.toString());
         }
     }
-
-
-    private String readFromFile(Context context) { // read from file NOT USED FOR NOW
-        String ret = "";
-
-        try {
-            InputStream inputStream = context.openFileInput("game_history.txt");
-
-            if (inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ((receiveString = bufferedReader.readLine()) != null) {
-                    stringBuilder.append("\n").append(receiveString);
-                }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
-            }
-        } catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        }
-
-        return ret;
-    }
-
-
 }
