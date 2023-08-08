@@ -19,11 +19,11 @@ Designed with an innovative blend of technology and creativity, Kushiya aims to 
 
   **Flask & Python**: Utilized to create the API that is powered by OpenAI, connected to the app via a local API.
 
-# Features
-AI-Powered Trivia Generator
+
+# AI-Powered Trivia Generator
 
 Keep the gameplay engaging with an endless variety of trivia questions crafted by sophisticated AI algorithms.
-Smart Scoring System
+# Smart Scoring System
 
 Kushiya's unique scoring system evaluates player responses, offering an engaging and contextually accurate gameplay experience.
 # Current Development Status
