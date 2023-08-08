@@ -29,4 +29,4 @@ Kushiya is actively under development. Check out the new repository and stay upd
 
 # Demo
 
-
+![Demo](Demo.gif)
