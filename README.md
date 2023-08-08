@@ -30,6 +30,8 @@ Kushiya's unique scoring system evaluates player responses, offering an engaging
 
 Kushiya's development has been temporarily shifted as we have moved to a different project. We remain committed to the innovation and excitement that Kushiya offers, and plan to return to this project in the future. Stay connected with the repository for future updates.
 
+<a href="https://github.com/PyExtr/Kushiya-app/tree/main" target="_blank">Link to the old repository</a>.
+
 # Demo
 
 ![Demo](Demo.gif)
