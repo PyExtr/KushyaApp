@@ -213,7 +213,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.221.151:5000/generate_question").post(body).build();
+                .url("http://YOUR-IP-FROM-API/generate_question").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -280,7 +280,7 @@ public class GameActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(JSON, jsonObject.toString());  // Create request body
 
         Request request = new Request.Builder()  // Create request
-                .url("http://192.168.221.151:5000/evaluate_answer").post(body).build();
+                .url("http://YOUR-IP-FROM-API/evaluate_answer").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {  // Send request
             @Override
